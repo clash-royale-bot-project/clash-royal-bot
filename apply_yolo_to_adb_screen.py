@@ -9,6 +9,9 @@ import sys
 import numpy as np
 import os.path
 
+from PIL import Image
+import io
+
 # Initialize the parameters
 confThreshold = 0.5  #Confidence threshold
 nmsThreshold = 0.4   #Non-maximum suppression threshold
@@ -21,14 +24,14 @@ parser.add_argument('--video', help='Path to video file.')
 args = parser.parse_args()
 
 # Load names of classes
-classesFile = "coco.names";
+classesFile = "model/model.names"
 classes = None
 with open(classesFile, 'rt') as f:
     classes = f.read().rstrip('\n').split('\n')
 
 # Give the configuration and weight files for the model and load the network using them.
-modelConfiguration = "yolov3.cfg";
-modelWeights = "yolov3.weights";
+modelConfiguration = "model/yolov3-tiny_1.cfg"
+modelWeights = "model/yolov3-tiny_1.backup"
 
 net = cv.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
 net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)
@@ -119,25 +122,39 @@ elif (args.video):
         sys.exit(1)
     cap = cv.VideoCapture(args.video)
     outputFile = args.video[:-4]+'_yolo_out_py.avi'
-else:
+# else:
     # Webcam input
-    cap = cv.VideoCapture(0)
+    # cap = cv.VideoCapture(0)
+
+
+from adb.client import Client as AdbClient
+client = AdbClient(host="127.0.0.1", port=5037)
+devices = client.devices()
+print(devices)
+device = devices[0]
+width, height = Image.open(io.BytesIO(device.screencap())).size
 
 # Get the video writer initialized to save the output video
 if (not args.image):
-    vid_writer = cv.VideoWriter(outputFile, cv.VideoWriter_fourcc('M','J','P','G'), 30, (round(cap.get(cv.CAP_PROP_FRAME_WIDTH)),round(cap.get(cv.CAP_PROP_FRAME_HEIGHT))))
+    vid_writer = cv.VideoWriter(outputFile, cv.VideoWriter_fourcc('M','J','P','G'), 30, (round(width),round(height)))
 
 while cv.waitKey(1) < 0:
 
     # get frame from the video
-    hasFrame, frame = cap.read()
+    # hasFrame, frame = cap.read()
+    screen = Image.open(io.BytesIO(device.screencap()))
+
+    # screen.thumbnail([inpWidth, inpHeight], Image.ANTIALIAS)
+
+    # https://stackoverflow.com/a/39270509/699934
+    frame = np.array(np.asarray(screen, dtype='uint8')[...,:3][:,:,::-1])
 
     # Stop the program if reached end of video
-    if not hasFrame:
-        print("Done processing !!!")
-        print("Output file is stored as ", outputFile)
-        cv.waitKey(3000)
-        break
+    # if not hasFrame:
+    #     print("Done processing !!!")
+    #     print("Output file is stored as ", outputFile)
+    #     cv.waitKey(3000)
+    #     break
 
     # Create a 4D blob from a frame.
     blob = cv.dnn.blobFromImage(frame, 1/255, (inpWidth, inpHeight), [0,0,0], 1, crop=False)
@@ -158,7 +175,7 @@ while cv.waitKey(1) < 0:
 
     # Write the frame with the detection boxes
     if (args.image):
-        cv.imwrite(outputFile, frame.astype(np.uint8));
+        cv.imwrite(outputFile, frame.astype(np.uint8))
     else:
         vid_writer.write(frame.astype(np.uint8))
 
