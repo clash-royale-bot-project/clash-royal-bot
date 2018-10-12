@@ -4,15 +4,15 @@ import time
 
 start = time.time()
 
-screen = cv2.imread("/Users/tolsi/Documents/clash_royale_bot/bot/bot/screens/1539357970-2.png", cv2.IMREAD_GRAYSCALE)
-card = cv2.resize(cv2.imread("/Users/tolsi/Documents/clash_royale_bot/bot/cards/ui_spells_sprite_76.png", cv2.IMREAD_GRAYSCALE), (0,0), fx=0.5, fy=0.5)
+screen = cv2.imread("/Users/tolsi/Documents/clash_royale_bot/bot/bot/screens/1539379684.jpg", cv2.IMREAD_GRAYSCALE)
+card = cv2.resize(cv2.imread("/Users/tolsi/Documents/clash_royale_bot/bot/cards/tornado.png", cv2.IMREAD_GRAYSCALE), (0,0), fx=0.5, fy=0.5)
 
 MIN_MATCH_COUNT = 8
 
-orb = cv2.KAZE_create(False, False, 0.0002, 5, 5)
+kaze = cv2.KAZE_create(False, False, 0.0001, 5, 5)
 
-kp1, des1 = orb.detectAndCompute(card, None)
-kp2, des2 = orb.detectAndCompute(screen, None)
+kp1, des1 = kaze.detectAndCompute(card, None)
+kp2, des2 = kaze.detectAndCompute(screen, None)
 
 FLANN_INDEX_KDTREE = 0
 index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 1)
