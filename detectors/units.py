@@ -84,14 +84,12 @@ def postprocess(frame, outs):
     # Perform non maximum suppression to eliminate redundant overlapping boxes with
     # lower confidences.
     indices = cv.dnn.NMSBoxes(boxes, confidences, confThreshold, nmsThreshold)
+    predictions = []
     for i in indices:
         i = i[0]
-        box = boxes[i]
-        left = box[0]
-        top = box[1]
-        width = box[2]
-        height = box[3]
-        drawPred(frame, classIds[i], confidences[i], left, top, left + width, top + height)
+        predictions.append((boxes[i], classIds[i], confidences[i]))
+
+    return predictions
 
 
 # np array
@@ -106,7 +104,14 @@ def predictUnits(frame):
     outs = net.forward(getOutputsNames(net))
 
     # Remove the bounding boxes with low confidence
-    postprocess(frame, outs)
+    predictions = postprocess(frame, outs)
+
+    for box, classId, confidence in predictions:
+        left = box[0]
+        top = box[1]
+        width = box[2]
+        height = box[3]
+        drawPred(frame, classId, confidence, left, top, left + width, top + height)
 
     # Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
     t, _ = net.getPerfProfile()
