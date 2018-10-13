@@ -2,22 +2,27 @@ import cv2 as cv
 import numpy as np
 
 # Initialize the parameters
+from utils import copy_image_to_np_array
+
 confThreshold = 0.5  # Confidence threshold
 nmsThreshold = 0.4  # Non-maximum suppression threshold
 inpWidth = 576  # Width of network's input image
 inpHeight = 576  # Height of network's input image
 
+classesFile = "/Users/tolsi/Documents/clash_royale_bot/bot/bot/model/model.names"
+
 # Load names of classes
-classesFile = "model/model.names"
-classes = None
-with open(classesFile, 'rt') as f:
-    classes = f.read().rstrip('\n').split('\n')
+def loadUnitsNNClasses():
+    classes = None
+    with open(classesFile, 'rt') as f:
+        classes = f.read().rstrip('\n').split('\n')
+    return classes
 
 # Give the configuration and weight files for the model and load the network using them.
 # modelConfiguration = "model/v2/yolov3_tiny.cfg"
 # modelWeights = "model/v2/yolov3_tiny_185400.weights"
-modelConfiguration = "model/yolov3-tiny_1.cfg"
-modelWeights = "model/yolov3-tiny_1.backup"
+modelConfiguration = "/Users/tolsi/Documents/clash_royale_bot/bot/bot/model/yolov3-tiny_1.cfg"
+modelWeights = "/Users/tolsi/Documents/clash_royale_bot/bot/bot/model/yolov3-tiny_1.backup"
 
 net = cv.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
 net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)
@@ -33,7 +38,7 @@ def getOutputsNames(net):
 
 
 # Draw the predicted bounding box
-def drawPred(frame, classId, conf, left, top, right, bottom):
+def drawPred(frame, classes, classId, conf, left, top, right, bottom):
     # Draw a bounding box.
     cv.rectangle(frame, (left, top), (right, bottom), (255, 178, 50), 3)
 
@@ -53,7 +58,7 @@ def drawPred(frame, classId, conf, left, top, right, bottom):
 
 
 # Remove the bounding boxes with low confidence using non-maxima suppression
-def postprocess(frame, outs):
+def postprocess(frame, outs, shift):
     frameHeight = frame.shape[0]
     frameWidth = frame.shape[1]
 
@@ -79,7 +84,7 @@ def postprocess(frame, outs):
                 top = int(center_y - height / 2)
                 classIds.append(classId)
                 confidences.append(float(confidence))
-                boxes.append([left, top, width, height])
+                boxes.append([left + shift[0], top + shift[1], width, height])
 
     # Perform non maximum suppression to eliminate redundant overlapping boxes with
     # lower confidences.
@@ -91,9 +96,12 @@ def postprocess(frame, outs):
 
     return predictions
 
+detect_field_area = (50, 70, 435, 600)
 
-# np array
-def predictUnits(frame):
+# param - image
+def predict_units(screen):
+    frame = copy_image_to_np_array(screen.crop(detect_field_area))
+
     # Create a 4D blob from a frame.
     blob = cv.dnn.blobFromImage(frame, 1 / 255, (inpWidth, inpHeight), [0, 0, 0], 1, crop=False)
 
@@ -103,19 +111,19 @@ def predictUnits(frame):
     # Runs the forward pass to get output of the output layers
     outs = net.forward(getOutputsNames(net))
 
-    # Remove the bounding boxes with low confidence
-    predictions = postprocess(frame, outs)
+    # Remove the bounding boxes with low confidence and shift the predictions
+    predictions = postprocess(frame, outs, detect_field_area)
 
     return predictions
 
-
-def drawPredictions(frame, predictions):
+# param - np array
+def draw_predictions(frame, classes, predictions):
     for box, classId, confidence in predictions:
         left = box[0]
         top = box[1]
         width = box[2]
         height = box[3]
-        drawPred(frame, classId, confidence, left, top, left + width, top + height)
+        drawPred(frame, classes, classId, confidence, left, top, left + width, top + height)
 
     # Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
     t, _ = net.getPerfProfile()

@@ -7,11 +7,18 @@ from PIL import Image
 
 cards_path = '/Users/tolsi/Documents/clash_royale_bot/bot/cards'
 
-card_1_area = (114, 650, 194, 760)
-card_2_area = (200, 650, 280, 760)
-card_3_area = (284, 650, 364, 760)
-card_4_area = (370, 650, 450, 760)
-all_cards_areas = [card_1_area, card_2_area, card_3_area, card_4_area]
+detect_card_1_area = (114, 650, 194, 760)
+detect_card_2_area = (200, 650, 280, 760)
+detect_card_3_area = (284, 650, 364, 760)
+detect_card_4_area = (370, 650, 450, 760)
+all_cards_detect_areas = [detect_card_1_area, detect_card_2_area, detect_card_3_area, detect_card_4_area]
+
+real_card_1_area = (119, 665, 189, 750)
+real_card_2_area = (205, 665, 275, 750)
+real_card_3_area = (289, 665, 359, 750)
+real_card_4_area = (375, 665, 445, 750)
+all_cards_real_areas = [detect_card_1_area, detect_card_2_area, detect_card_3_area, detect_card_4_area]
+
 cards_area = (114, 650, 450, 760)
 
 # region parse cards inits
@@ -26,13 +33,13 @@ flann = cv2.FlannBasedMatcher(index_params, search_params)
 # endregion
 
 def detectCardPos(x, y):
-    for idx, val in enumerate(all_cards_areas):
+    for idx, val in enumerate(all_cards_detect_areas):
         if val[0] >= x and val[1] >= y and val[2] <= x and val[3] <= y:
             return idx
     return None
 
 
-def parseCards(img):
+def parse_cards(img):
     cropped_cards = img.crop(cards_area)
     cropped_cards = np.asarray(cropped_cards, dtype='uint8')[..., :3][:, :, ::-1]
     kp2, des2 = kaze.detectAndCompute(cropped_cards, None)
@@ -71,6 +78,6 @@ for filename in os.listdir(cards_path):
 
 if __name__ == '__main__':
     start = time.time()
-    print(parseCards(Image.open("/Users/tolsi/Documents/clash_royale_bot/bot/bot/screens/1539379684.jpg")))
+    print(parse_cards(Image.open("/Users/tolsi/Documents/clash_royale_bot/bot/bot/screens/1539379684.jpg")))
     end = time.time()
     print(end - start)

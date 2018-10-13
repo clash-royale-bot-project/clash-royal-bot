@@ -35,7 +35,7 @@ units_price = {'knight': 3,
                'miner': 3,
                'zapMachine': 6,
                'bowler': 5,
-               'rage_barbarian': 4,
+               'lumberjack': 4,
                'battle_ram': 4,
                'inferno_dragon': 4,
                'ice_golem': 2,
@@ -58,17 +58,17 @@ units_price = {'knight': 3,
                'magic_archer': 4}
 
 builds_price = {
-    'chaos_cannon': 3,
-    'fire_furnace': 5,
-    'building_mortar': 4,
-    'building_inferno': 5,
-    'bomb_tower': 5,
+    'cannon_cart': 3,
+    # 'fire_furnace': 5,
+    'mortar': 4,
+    'inferno': 5,
+    'bomb_cannon': 5,
     'barbarian_hut': 7,
-    'building_tesla': 4,
-    'building_elixir_collector': 6,
-    'building_xbow': 6,
+    'tesla': 4,
+    'elixir_collector': 6,
+    'x_bow': 6,
     'tombstone': 3,
-    'firespirit_hut': 4
+    'furnace': 4
 }
 
 spells_price = {
