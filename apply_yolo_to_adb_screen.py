@@ -2,16 +2,10 @@
 
 # Usage example:  python3 object_detection_yolo.py --video=run.mp4
 #                 python3 object_detection_yolo.py --image=bird.jpg
-import importlib
+
+import io
 
 import cv2 as cv
-import argparse
-import sys
-import numpy as np
-import os.path
-
-from PIL import Image
-import io
 
 from detectors.cards import *
 from detectors.mana import *
@@ -22,10 +16,6 @@ nmsThreshold = 0.4   #Non-maximum suppression threshold
 inpWidth = 576       #Width of network's input image
 inpHeight = 576      #Height of network's input image
 
-parser = argparse.ArgumentParser(description='Object Detection using YOLO in OPENCV')
-parser.add_argument('--image', help='Path to image file.')
-parser.add_argument('--video', help='Path to video file.')
-args = parser.parse_args()
 
 # Load names of classes
 classesFile = "model/model.names"
@@ -114,24 +104,6 @@ winName = 'Deep learning object detection in OpenCV'
 cv.namedWindow(winName, cv.WINDOW_NORMAL)
 
 outputFile = "yolo_out_py.avi"
-if (args.image):
-    # Open the image file
-    if not os.path.isfile(args.image):
-        print("Input image file ", args.image, " doesn't exist")
-        sys.exit(1)
-    cap = cv.VideoCapture(args.image)
-    outputFile = args.image[:-4]+'_yolo_out_py.jpg'
-elif (args.video):
-    # Open the video file
-    if not os.path.isfile(args.video):
-        print("Input video file ", args.video, " doesn't exist")
-        sys.exit(1)
-    cap = cv.VideoCapture(args.video)
-    outputFile = args.video[:-4]+'_yolo_out_py.avi'
-# else:
-    # Webcam input
-    # cap = cv.VideoCapture(0)
-
 
 from adb.client import Client as AdbClient
 client = AdbClient(host="127.0.0.1", port=5037)
@@ -141,8 +113,7 @@ device = devices[0]
 width, height = Image.open(io.BytesIO(device.screencap())).size
 
 # Get the video writer initialized to save the output video
-if (not args.image):
-    vid_writer = cv.VideoWriter(outputFile, cv.VideoWriter_fourcc('M','J','P','G'), 30, (round(width),round(height)))
+vid_writer = cv.VideoWriter(outputFile, cv.VideoWriter_fourcc('M','J','P','G'), 30, (round(width),round(height)))
 
 while cv.waitKey(1) < 0:
 
@@ -164,12 +135,6 @@ while cv.waitKey(1) < 0:
         # https://stackoverflow.com/a/39270509/699934
         frame = np.array(np.asarray(screen, dtype='uint8')[...,:3][:,:,::-1])
 
-        # Stop the program if reached end of video
-        # if not hasFrame:
-        #     print("Done processing !!!")
-        #     print("Output file is stored as ", outputFile)
-        #     cv.waitKey(3000)
-        #     break
 
         # Create a 4D blob from a frame.
         blob = cv.dnn.blobFromImage(frame, 1/255, (inpWidth, inpHeight), [0,0,0], 1, crop=False)
@@ -188,11 +153,7 @@ while cv.waitKey(1) < 0:
         cv.putText(frame, 'Inference time: %.2f ms' % (t * 1000.0 / cv.getTickFrequency()), (0, 15), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255))
         cv.putText(frame, 'Mana: %s, cards: %s' % (str(mana), str(cards)), (0, 35), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255))
 
-        # Write the frame with the detection boxes
-        if (args.image):
-            cv.imwrite(outputFile, frame.astype(np.uint8))
-        else:
-            vid_writer.write(frame.astype(np.uint8))
+        vid_writer.write(frame.astype(np.uint8))
 
         cv.imshow(winName, frame)
     else:
