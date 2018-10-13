@@ -2,6 +2,7 @@
 
 # Usage example:  python3 object_detection_yolo.py --video=run.mp4
 #                 python3 object_detection_yolo.py --image=bird.jpg
+import importlib
 
 import cv2 as cv
 import argparse
@@ -12,11 +13,14 @@ import os.path
 from PIL import Image
 import io
 
+from detectors.cards import *
+from detectors.mana import *
+
 # Initialize the parameters
 confThreshold = 0.5  #Confidence threshold
 nmsThreshold = 0.4   #Non-maximum suppression threshold
-inpWidth = 416       #Width of network's input image
-inpHeight = 416      #Height of network's input image
+inpWidth = 576       #Width of network's input image
+inpHeight = 576      #Height of network's input image
 
 parser = argparse.ArgumentParser(description='Object Detection using YOLO in OPENCV')
 parser.add_argument('--image', help='Path to image file.')
@@ -30,6 +34,8 @@ with open(classesFile, 'rt') as f:
     classes = f.read().rstrip('\n').split('\n')
 
 # Give the configuration and weight files for the model and load the network using them.
+# modelConfiguration = "model/v2/yolov3_tiny.cfg"
+# modelWeights = "model/v2/yolov3_tiny_185400.weights"
 modelConfiguration = "model/yolov3-tiny_1.cfg"
 modelWeights = "model/yolov3-tiny_1.backup"
 
@@ -142,41 +148,52 @@ while cv.waitKey(1) < 0:
 
     # get frame from the video
     # hasFrame, frame = cap.read()
-    screen = Image.open(io.BytesIO(device.screencap()))
+    screen = None
+    try:
+        screen = Image.open(io.BytesIO(device.screencap()))
+    except RuntimeError:
+        screen = None
 
-    # screen.thumbnail([inpWidth, inpHeight], Image.ANTIALIAS)
+    if screen is not None:
+        # todo parse only in game?
+        mana = parseMana(screen)
+        cards = parseCards(screen)
 
-    # https://stackoverflow.com/a/39270509/699934
-    frame = np.array(np.asarray(screen, dtype='uint8')[...,:3][:,:,::-1])
+        # screen.thumbnail([inpWidth, inpHeight], Image.ANTIALIAS)
 
-    # Stop the program if reached end of video
-    # if not hasFrame:
-    #     print("Done processing !!!")
-    #     print("Output file is stored as ", outputFile)
-    #     cv.waitKey(3000)
-    #     break
+        # https://stackoverflow.com/a/39270509/699934
+        frame = np.array(np.asarray(screen, dtype='uint8')[...,:3][:,:,::-1])
 
-    # Create a 4D blob from a frame.
-    blob = cv.dnn.blobFromImage(frame, 1/255, (inpWidth, inpHeight), [0,0,0], 1, crop=False)
+        # Stop the program if reached end of video
+        # if not hasFrame:
+        #     print("Done processing !!!")
+        #     print("Output file is stored as ", outputFile)
+        #     cv.waitKey(3000)
+        #     break
 
-    # Sets the input to the network
-    net.setInput(blob)
+        # Create a 4D blob from a frame.
+        blob = cv.dnn.blobFromImage(frame, 1/255, (inpWidth, inpHeight), [0,0,0], 1, crop=False)
 
-    # Runs the forward pass to get output of the output layers
-    outs = net.forward(getOutputsNames(net))
+        # Sets the input to the network
+        net.setInput(blob)
 
-    # Remove the bounding boxes with low confidence
-    postprocess(frame, outs)
+        # Runs the forward pass to get output of the output layers
+        outs = net.forward(getOutputsNames(net))
 
-    # Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
-    t, _ = net.getPerfProfile()
-    label = 'Inference time: %.2f ms' % (t * 1000.0 / cv.getTickFrequency())
-    cv.putText(frame, label, (0, 15), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
+        # Remove the bounding boxes with low confidence
+        postprocess(frame, outs)
 
-    # Write the frame with the detection boxes
-    if (args.image):
-        cv.imwrite(outputFile, frame.astype(np.uint8))
+        # Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
+        t, _ = net.getPerfProfile()
+        cv.putText(frame, 'Inference time: %.2f ms' % (t * 1000.0 / cv.getTickFrequency()), (0, 15), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255))
+        cv.putText(frame, 'Mana: %s, cards: %s' % (str(mana), str(cards)), (0, 35), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255))
+
+        # Write the frame with the detection boxes
+        if (args.image):
+            cv.imwrite(outputFile, frame.astype(np.uint8))
+        else:
+            vid_writer.write(frame.astype(np.uint8))
+
+        cv.imshow(winName, frame)
     else:
-        vid_writer.write(frame.astype(np.uint8))
-
-    cv.imshow(winName, frame)
+        print('wait for device...')

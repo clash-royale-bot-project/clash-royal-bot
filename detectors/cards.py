@@ -33,22 +33,28 @@ def parseCards(img):
     cropped_cards = img.crop(cards_area)
     cropped_cards = np.asarray(cropped_cards, dtype='uint8')[...,:3][:,:,::-1]
     kp2, des2 = kaze.detectAndCompute(cropped_cards, None)
-    results = []
-    for card_name, kp1, des1 in card_and_points:
-        matches = flann.knnMatch(des1, des2, k=2)
-        good = []
-        for m,n in matches:
-            if m.distance < 0.7 * n.distance:
-                good.append(m)
-        good = sorted(good, key = lambda x: -x.distance)
-        results.append((card_name, good))
-    # by points count
-    results = sorted(results, key = lambda x: len(x[1]))
-    #take only best 4
-    results = results[-4:]
-    # by point x
-    results = sorted(results, key = lambda x: kp2[x[1][1].trainIdx].pt[0])
-    return list(map(lambda x: x[0],results))
+    if des2 is not None:
+        results = []
+        for card_name, kp1, des1 in card_and_points:
+            matches = flann.knnMatch(des1, des2, k=2)
+            good = []
+            for m,n in matches:
+                if m.distance < 0.7 * n.distance:
+                    good.append(m)
+            good = sorted(good, key = lambda x: -x.distance)
+            results.append((card_name, good))
+        # by points count
+        results = sorted(results, key = lambda x: len(x[1]))
+        #take only best 4
+        results = results[-4:]
+        if any(len(x[1]) < 2 for x in results):
+            return None
+        else :
+            # by point x
+            results = sorted(results, key = lambda x: kp2[x[1][-1].trainIdx].pt[0])
+            return list(map(lambda x: x[0],results))
+    else:
+        return None
 
 #region init cards
 card_and_points = []
@@ -59,10 +65,8 @@ for filename in os.listdir(cards_path):
         card_and_points.append((filename.replace('.png', ''), kp, des))
 #endregion
 
-start = time.time()
-
-print(parseCards(Image.open("/Users/tolsi/Documents/clash_royale_bot/bot/bot/screens/1539379684.jpg")))
-
-end = time.time()
-
-print(end - start)
+if __name__ == '__main__':
+    start = time.time()
+    print(parseCards(Image.open("/Users/tolsi/Documents/clash_royale_bot/bot/bot/screens/1539379684.jpg")))
+    end = time.time()
+    print(end - start)
