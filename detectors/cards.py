@@ -13,10 +13,10 @@ detect_card_3_area = (284, 650, 364, 760)
 detect_card_4_area = (370, 650, 450, 760)
 all_cards_detect_areas = [detect_card_1_area, detect_card_2_area, detect_card_3_area, detect_card_4_area]
 
-real_card_1_area = (120, 675, 189, 755)
-real_card_2_area = (206, 675, 275, 755)
-real_card_3_area = (290, 675, 359, 755)
-real_card_4_area = (376, 675, 445, 755)
+real_card_1_area = (125, 675, 185, 755)
+real_card_2_area = (211, 675, 270, 755)
+real_card_3_area = (295, 675, 355, 755)
+real_card_4_area = (380, 675, 440, 755)
 all_cards_real_areas = [detect_card_1_area, detect_card_2_area, detect_card_3_area, detect_card_4_area]
 
 cards_area = (114, 650, 450, 760)
@@ -78,7 +78,7 @@ for filename in os.listdir(cards_path):
 
 if __name__ == '__main__':
     start = time.time()
-    screen = Image.open("/tmp/player_shoot.png")
+    screen = Image.open("/Users/tolsi/Documents/clash_royale_bot/bot/bot/screens/1539460729.jpg")
     print(parse_cards(screen))
     screen.crop(real_card_1_area).show()
     screen.crop(real_card_2_area).show()
