@@ -39,7 +39,7 @@ def predictions_to_actions(screen, predictions, classes, mana, cards):
         # todo let's think about it later
         first_allowed_unit = next((p for p in my_allowed_cards if unit_type(p[1]) == 'unit'), None)
         if first_allowed_unit is not None:
-            actions = [(first_allowed_unit[0], field_position_center(4, 16))]
+            actions = [(first_allowed_unit[0], field_position_center(6, 25))]
             print('make actions: {} as {}'.format(str(first_allowed_unit), str(actions)))
     clicks = []
     for card_index, to in actions:
