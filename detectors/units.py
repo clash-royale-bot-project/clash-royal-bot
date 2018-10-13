@@ -106,6 +106,10 @@ def predictUnits(frame):
     # Remove the bounding boxes with low confidence
     predictions = postprocess(frame, outs)
 
+    return predictions
+
+
+def drawPredictions(frame, predictions):
     for box, classId, confidence in predictions:
         left = box[0]
         top = box[1]

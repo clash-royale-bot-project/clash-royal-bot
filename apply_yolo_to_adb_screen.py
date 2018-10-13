@@ -44,7 +44,9 @@ while cv.waitKey(1) < 0:
         # https://stackoverflow.com/a/39270509/699934
         frame = np.array(np.asarray(screen, dtype='uint8')[..., :3][:, :, ::-1])
 
-        predictUnits(frame)
+        predictions = predictUnits(frame)
+
+        drawPredictions(frame, predictions)
 
         cv.putText(frame, 'Mana: %s, cards: %s' % (str(mana), str(cards)), (0, 35), cv.FONT_HERSHEY_SIMPLEX, 0.5,
                    (255, 255, 255))
