@@ -2,11 +2,10 @@ import cv2 as cv
 import numpy as np
 
 # Initialize the parameters
-confThreshold = 0.5  #Confidence threshold
-nmsThreshold = 0.4   #Non-maximum suppression threshold
-inpWidth = 576       #Width of network's input image
-inpHeight = 576      #Height of network's input image
-
+confThreshold = 0.5  # Confidence threshold
+nmsThreshold = 0.4  # Non-maximum suppression threshold
+inpWidth = 576  # Width of network's input image
+inpHeight = 576  # Height of network's input image
 
 # Load names of classes
 classesFile = "model/model.names"
@@ -24,12 +23,14 @@ net = cv.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
 net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)
 net.setPreferableTarget(cv.dnn.DNN_TARGET_CPU)
 
+
 # Get the names of the output layers
 def getOutputsNames(net):
     # Get the names of all the layers in the network
     layersNames = net.getLayerNames()
     # Get the names of the output layers, i.e. the layers with unconnected outputs
     return [layersNames[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+
 
 # Draw the predicted bounding box
 def drawPred(frame, classId, conf, left, top, right, bottom):
@@ -40,14 +41,16 @@ def drawPred(frame, classId, conf, left, top, right, bottom):
 
     # Get the label for the class name and its confidence
     if classes:
-        assert(classId < len(classes))
+        assert (classId < len(classes))
         label = '%s:%s' % (classes[classId], label)
 
-    #Display the label at the top of the bounding box
+    # Display the label at the top of the bounding box
     labelSize, baseLine = cv.getTextSize(label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)
     top = max(top, labelSize[1])
-    cv.rectangle(frame, (left, top - round(1.5*labelSize[1])), (left + round(1.5*labelSize[0]), top + baseLine), (255, 255, 255), cv.FILLED)
-    cv.putText(frame, label, (left, top), cv.FONT_HERSHEY_SIMPLEX, 0.75, (0,0,0), 1)
+    cv.rectangle(frame, (left, top - round(1.5 * labelSize[1])), (left + round(1.5 * labelSize[0]), top + baseLine),
+                 (255, 255, 255), cv.FILLED)
+    cv.putText(frame, label, (left, top), cv.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0), 1)
+
 
 # Remove the bounding boxes with low confidence using non-maxima suppression
 def postprocess(frame, outs):
@@ -90,10 +93,11 @@ def postprocess(frame, outs):
         height = box[3]
         drawPred(frame, classIds[i], confidences[i], left, top, left + width, top + height)
 
+
 # np array
 def predictUnits(frame):
     # Create a 4D blob from a frame.
-    blob = cv.dnn.blobFromImage(frame, 1/255, (inpWidth, inpHeight), [0,0,0], 1, crop=False)
+    blob = cv.dnn.blobFromImage(frame, 1 / 255, (inpWidth, inpHeight), [0, 0, 0], 1, crop=False)
 
     # Sets the input to the network
     net.setInput(blob)
@@ -106,4 +110,5 @@ def predictUnits(frame):
 
     # Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
     t, _ = net.getPerfProfile()
-    cv.putText(frame, 'Inference time: %.2f ms' % (t * 1000.0 / cv.getTickFrequency()), (0, 15), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255))
+    cv.putText(frame, 'Inference time: %.2f ms' % (t * 1000.0 / cv.getTickFrequency()), (0, 15),
+               cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255))

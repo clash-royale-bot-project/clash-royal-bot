@@ -1,21 +1,21 @@
-import subprocess
 import time
 
-from PIL import Image
-import io
-
 from adb.client import Client as AdbClient
+
 client = AdbClient(host="127.0.0.1", port=5037)
 devices = client.devices()
 print(devices)
 device = devices[0]
 device.screencap()
 
+
 def tap(x, y):
     print(device.shell('input tap {} {}'.format(x, y)))
 
+
 def shoot():
     return device.screencap()
+
 
 tap(40, 750)
 time.sleep(1)

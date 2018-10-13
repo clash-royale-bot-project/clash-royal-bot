@@ -9,7 +9,6 @@ from detectors.cards import *
 from detectors.mana import *
 from detectors.units import *
 
-
 # Process inputs
 winName = 'Deep learning object detection in OpenCV'
 cv.namedWindow(winName, cv.WINDOW_NORMAL)
@@ -17,6 +16,7 @@ cv.namedWindow(winName, cv.WINDOW_NORMAL)
 outputFile = "yolo_out_py.avi"
 
 from adb.client import Client as AdbClient
+
 client = AdbClient(host="127.0.0.1", port=5037)
 devices = client.devices()
 print(devices)
@@ -24,7 +24,7 @@ device = devices[0]
 width, height = Image.open(io.BytesIO(device.screencap())).size
 
 # Get the video writer initialized to save the output video
-vid_writer = cv.VideoWriter(outputFile, cv.VideoWriter_fourcc('M','J','P','G'), 30, (round(width),round(height)))
+vid_writer = cv.VideoWriter(outputFile, cv.VideoWriter_fourcc('M', 'J', 'P', 'G'), 30, (round(width), round(height)))
 
 while cv.waitKey(1) < 0:
 
@@ -42,11 +42,12 @@ while cv.waitKey(1) < 0:
         cards = parseCards(screen)
 
         # https://stackoverflow.com/a/39270509/699934
-        frame = np.array(np.asarray(screen, dtype='uint8')[...,:3][:,:,::-1])
+        frame = np.array(np.asarray(screen, dtype='uint8')[..., :3][:, :, ::-1])
 
         predictUnits(frame)
 
-        cv.putText(frame, 'Mana: %s, cards: %s' % (str(mana), str(cards)), (0, 35), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255))
+        cv.putText(frame, 'Mana: %s, cards: %s' % (str(mana), str(cards)), (0, 35), cv.FONT_HERSHEY_SIMPLEX, 0.5,
+                   (255, 255, 255))
 
         vid_writer.write(frame.astype(np.uint8))
 
