@@ -5,8 +5,8 @@ import numpy as np
 
 start = time.time()
 
-screen = cv2.imread("/Users/tolsi/Documents/clash_royale_bot/bot/bot/screens/1539379684.jpg", cv2.IMREAD_GRAYSCALE)
-card = cv2.resize(cv2.imread("/Users/tolsi/Documents/clash_royale_bot/bot/cards/tornado.png", cv2.IMREAD_GRAYSCALE),
+screen = cv2.imread("screens/1539379684.jpg", cv2.IMREAD_GRAYSCALE)
+card = cv2.resize(cv2.imread("cards/tornado.png", cv2.IMREAD_GRAYSCALE),
                   (0, 0), fx=0.5, fy=0.5)
 
 MIN_MATCH_COUNT = 8

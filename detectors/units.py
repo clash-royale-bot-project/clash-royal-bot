@@ -9,7 +9,7 @@ nmsThreshold = 0.4  # Non-maximum suppression threshold
 inpWidth = 576  # Width of network's input image
 inpHeight = 576  # Height of network's input image
 
-classesFile = "/Users/tolsi/Documents/clash_royale_bot/bot/bot/model/model.names"
+classesFile = "model/model.names"
 
 # Load names of classes
 def loadUnitsNNClasses():
@@ -21,8 +21,8 @@ def loadUnitsNNClasses():
 # Give the configuration and weight files for the model and load the network using them.
 # modelConfiguration = "model/v2/yolov3_tiny.cfg"
 # modelWeights = "model/v2/yolov3_tiny_185400.weights"
-modelConfiguration = "/Users/tolsi/Documents/clash_royale_bot/bot/bot/model/yolov3-tiny_1.cfg"
-modelWeights = "/Users/tolsi/Documents/clash_royale_bot/bot/bot/model/yolov3-tiny_1.backup"
+modelConfiguration = "model/yolov3-tiny_1.cfg"
+modelWeights = "model/yolov3-tiny_1.backup"
 
 net = cv.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
 net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)

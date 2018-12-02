@@ -7,7 +7,7 @@ from detectors.units import loadUnitsNNClasses, predict_units, draw_predictions
 from utils import copy_image_to_np_array
 
 if __name__ == '__main__':
-    screen = Image.open("/Users/tolsi/Documents/clash_royale_bot/bot/bot/screens/1539357173.jpg")
+    screen = Image.open("screens/1539357173.jpg")
     frame = copy_image_to_np_array(screen)
     classes = loadUnitsNNClasses()
     predictions = predict_units(screen)

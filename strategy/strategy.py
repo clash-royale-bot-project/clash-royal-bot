@@ -49,7 +49,7 @@ def predictions_to_actions(screen, predictions, classes, mana, cards):
 
 if __name__ == '__main__':
     start = time.time()
-    screen = Image.open("/Users/tolsi/Documents/clash_royale_bot/bot/bot/screens/1539357975.jpg")
+    screen = Image.open("screens/1539357975.jpg")
     classes = loadUnitsNNClasses()
     predictions = predict_units(screen)
     mana = parseMana(screen)

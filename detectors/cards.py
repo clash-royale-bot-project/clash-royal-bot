@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from PIL import Image
 
-cards_path = '/Users/tolsi/Documents/clash_royale_bot/bot/cards'
+cards_path = 'cards'
 
 detect_card_1_area = (114, 650, 194, 760)
 detect_card_2_area = (200, 650, 280, 760)
@@ -78,7 +78,7 @@ for filename in os.listdir(cards_path):
 
 if __name__ == '__main__':
     start = time.time()
-    screen = Image.open("/Users/tolsi/Documents/clash_royale_bot/bot/bot/screens/1539460729.jpg")
+    screen = Image.open("screens/1539460729.jpg")
     print(parse_cards(screen))
     screen.crop(real_card_1_area).show()
     screen.crop(real_card_2_area).show()
