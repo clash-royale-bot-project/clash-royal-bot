@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from PIL import Image
 
-cards_path = 'cards'
+cards_path = 'detectors/cards'
 
 detect_card_1_area = (114, 650, 194, 760)
 detect_card_2_area = (200, 650, 280, 760)
